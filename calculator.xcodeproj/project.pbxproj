@@ -222,7 +222,6 @@
 				TargetAttributes = {
 					253A1E301C841E540077172C = {
 						CreatedOnToolsVersion = 7.0.1;
-						DevelopmentTeam = XK2GK74625;
 					};
 					253A1E441C841E540077172C = {
 						CreatedOnToolsVersion = 7.0.1;
