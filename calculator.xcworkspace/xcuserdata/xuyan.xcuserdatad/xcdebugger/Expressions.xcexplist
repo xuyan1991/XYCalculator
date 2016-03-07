@@ -10,5 +10,21 @@
             </PersistentString>
          </PersistentStrings>
       </ContextState>
+      <ContextState
+         contextName = "CalculatorBrain.eval(String) -&gt; Double:CalculatorBrain.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "checkingRes.range">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "CalculatorBrain.eval(String) -&gt; String:CalculatorBrain.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = " &quot;\(result)&quot;.characters.count">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
    </ContextStates>
 </VariablesViewState>

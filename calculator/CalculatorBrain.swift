@@ -16,32 +16,70 @@ class CalculatorBrain {
     
     private let bracketLeft = "("
     private let bracketRight = ")"
+    private let numbers = ["0","1","2","3","4","5","6","7","8","9"]
     init(){
     }
-    func eval(str: String) -> Double {
+    func eval(str: String) -> String {
         var line: String = str
         // 使用正则表达式一定要加try语句
         do {
-            while (line.componentsSeparatedByString(bracketLeft).count > 1) {
+            if line.componentsSeparatedByString(bracketLeft).count != line.componentsSeparatedByString(bracketRight).count{
+                return "请输入正确的公式"
+            }
+            while (line.componentsSeparatedByString(bracketLeft).count > 1 && line.componentsSeparatedByString(bracketRight).count > 1) {
                 // - 1、创建规则
+
                 let pattern = "\\(([^\\(\\)]*?)\\)"
                 // - 2、创建正则表达式对象
                 let regex = try NSRegularExpression(pattern: pattern, options: NSRegularExpressionOptions.CaseInsensitive)
                 // - 3、开始匹配
-                let res = regex.matchesInString(line, options: NSMatchingOptions(rawValue: 0), range: NSMakeRange(0, str.characters.count))
+                let res = regex.matchesInString(line, options: NSMatchingOptions(rawValue: 0), range: NSMakeRange(0, line.characters.count))
                 // 输出结果
+                var oldLengthDiff = 0
                 for checkingRes in res {
-                    var part = ((line as NSString).substringWithRange(checkingRes.range))
-                    var result: Double = simpleEval(part)
+                    
+                    var rangeWithBracket:NSRange = checkingRes.range
+                    rangeWithBracket.location = rangeWithBracket.location + oldLengthDiff
+                    var range:NSRange = rangeWithBracket
+                    range.length = range.length - 2
+                    range.location = range.location + 1
+                    
+                    let partWithoutBracket = ((line as NSString).substringWithRange(range))
+                    let part = ((line as NSString).substringWithRange(rangeWithBracket))
+                    var beforeCh = ""
+                    var afterCh = ""
+                    let rangeOfBefore: Range<String.Index>
+                    let result: Double = simpleEval(partWithoutBracket)
+                    if range.location - 2 >= 0 {
+                        let indexOfBefore = line.startIndex.advancedBy(range.location - 2)
+                        rangeOfBefore = Range<String.Index>(start: indexOfBefore,end: indexOfBefore.advancedBy(1))
+                        beforeCh = line.substringWithRange(rangeOfBefore)
+
+                    }
+                    if range.location + range.length + 1 <= line.characters.count - 1 {
+                        let indexOfAfter = line.startIndex.advancedBy(range.location + range.length + 1)
+                        let rangeOfAfter = Range<String.Index>(start: indexOfAfter,end: indexOfAfter.advancedBy(1))
+                        afterCh = line.substringWithRange(rangeOfAfter)
+                    }
+                    
+                    if numbers.contains(beforeCh){
+                        line = line.stringByReplacingOccurrencesOfString(part, withString: "*\(part)")
+                        oldLengthDiff = oldLengthDiff + 1
+                    }
+                    if numbers.contains(afterCh){
+                        line = line.stringByReplacingOccurrencesOfString(part, withString: "\(part)*")
+                        oldLengthDiff = oldLengthDiff + 1
+                    }
                     line = line.stringByReplacingOccurrencesOfString(part, withString: "\(result)")
-                    print(part)
+                    oldLengthDiff = "\(result)".characters.count - part.characters.count
+                    print(line)
                 }
             }
         }
         catch {
             print(error)
         }
-        return simpleEval(str)
+        return "\(simpleEval(line))"
     }
     
     func simpleEval(str:String) -> Double{

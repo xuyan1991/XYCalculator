@@ -21,11 +21,13 @@ class ViewController: UIViewController {
     private var typingFlag: Bool = false
     private var opFlag: Bool = false
     private var buttonList: [UIView] = [UIView]()
+    private let ops: [String] = ["*", "+", "-", "/", "."]
+    private let bracket: [String] = ["(", ")"]
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = MaterialColor.white
         titleLabel.text = "INPUT"
-        titleLabel.textColor = MaterialColor.blue.darken1
+        titleLabel.textColor = MaterialColor.grey.base
         titleLabel.textAlignment = .Right
         titleLabel.font = RobotoFont.mediumWithSize(20)
         titleLabel.alpha = 1
@@ -33,23 +35,27 @@ class ViewController: UIViewController {
         detailLabel.textAlignment = .Right
         detailLabel.font = RobotoFont.mediumWithSize(40)
         detailLabel.alpha = 1
+        detailLabel.textColor = MaterialColor.grey.darken1
 
         let buttonView = MaterialView()
         
-        let buttonTitles: Array<String> = [ "7", "8", "9", "/",
+        let buttonTitles: Array<String> = [ "(", ")", "CLE",  "DEL",
+                                            "7", "8", "9", "/",
                                             "4", "5", "6", "*",
                                             "1", "2", "3", "+",
                                             ".", "0", "=", "-"]
         resultView.depth = .Depth3
+        resultView.backgroundColor = MaterialColor.white
         resultView.addSubview(titleLabel)
         resultView.addSubview(detailLabel)
         self.view.addSubview(buttonView)
         self.view.addSubview(resultView)
+        
         resultView.snp_makeConstraints { (make) -> Void in
-            make.top.equalTo(self.view).offset(20)
-            make.left.equalTo(self.view).offset(20)
-            make.right.equalTo(self.view).offset(-20)
-            make.height.equalTo(152)
+            make.top.equalTo(self.view).offset(30)
+            make.left.equalTo(self.view).offset(10)
+            make.right.equalTo(self.view).offset(-10)
+            
             
         }
         titleLabel.snp_makeConstraints{ (make) ->Void in
@@ -71,9 +77,10 @@ class ViewController: UIViewController {
             make.bottom.equalTo(self.view).offset(-20)
             make.right.equalTo(self.view).offset(-10)
         }
-        for index in 0...15{
+        for index in 0...19{
             
             let button: RaisedButton = RaisedButton()
+
             button.setTitle("\(buttonTitles[index])", forState: .Normal)
             button.titleLabel!.font = RobotoFont.mediumWithSize(32)
             button.grid.columns = 3
@@ -81,14 +88,29 @@ class ViewController: UIViewController {
             button.grid.offset.columns = index % 4 * 3
             button.grid.offset.rows = index / 4 * 3
             button.depth = .Depth2
-            button.backgroundColor = MaterialColor.grey.base
+            button.backgroundColor = MaterialColor.grey.lighten1
+            //button.titleLabel!.textColor = MaterialColor.lightBlue.base
+            if ops.contains(buttonTitles[index]) || bracket.contains(buttonTitles[index]){
+                button.backgroundColor = MaterialColor.lightBlue.darken2
+            }
             button.addTarget(self,action:Selector("tapped:"),forControlEvents:.TouchUpInside)
             
             switch index{
-            case 14:
-                button.backgroundColor = MaterialColor.red.darken1
+            case 18:
                 button.removeTarget(self, action: Selector("tapped:"), forControlEvents: .TouchUpInside)
                 button.addTarget(self,action:Selector("bingo:"),forControlEvents:.TouchUpInside)
+            case 2:
+                button.backgroundColor = MaterialColor.red.darken1
+                button.titleLabel!.font = RobotoFont.mediumWithSize(20)
+                button.removeTarget(self, action: Selector("tapped:"), forControlEvents: .TouchUpInside)
+
+                button.addTarget(self,action:Selector("clear:"),forControlEvents:.TouchUpInside)
+            case 3:
+                button.backgroundColor = MaterialColor.red.darken1
+                button.titleLabel!.font = RobotoFont.mediumWithSize(20)
+                button.removeTarget(self, action: Selector("tapped:"), forControlEvents: .TouchUpInside)
+
+                button.addTarget(self,action:Selector("deleteTitle:"),forControlEvents:.TouchUpInside)
                 
                 
             default: break
@@ -103,7 +125,7 @@ class ViewController: UIViewController {
         buttonView.grid.axis.inherited = false
         buttonView.grid.views = buttonList
         buttonView.grid.axis.columns = 12
-        buttonView.grid.axis.rows = 12
+        buttonView.grid.axis.rows = 16
         buttonView.grid.contentInsetPreset = .Square3
     }
 
@@ -113,7 +135,7 @@ class ViewController: UIViewController {
     }
     func tapped(button:UIButton){
         print(beforeOp)
-        let ops: [String] = ["*", "+", "-", "/", "."]
+        
         if ops.contains(beforeOp) && ops.contains(button.currentTitle!){
             opFlag = true
         }
@@ -131,14 +153,32 @@ class ViewController: UIViewController {
         }
         
         let cal: CalculatorBrain = CalculatorBrain()
-        let result: Double = cal.eval(titleLabel.text!)
-        detailLabel.text! = "\(result)"
+        let result: String = cal.eval(titleLabel.text!)
+        detailLabel.text = result
         typingFlag = true
     }
     func bingo(button:UIButton){
         
+        if(titleLabel.text != ""){
+            titleLabel.text = detailLabel.text!
+            detailLabel.text = ""
+        }
+    }
+    func clear(button:UIButton){
+        
         titleLabel.text = ""
-        typingFlag = false
+        detailLabel.text = ""
+    }
+    func deleteTitle(button:UIButton){
+        if(titleLabel.text != ""){
+            titleLabel.text?.removeAtIndex(titleLabel.text!.characters.indices.last!)
+        }
+        beforeOp = String(titleLabel.text!.characters.last!)
+        let cal: CalculatorBrain = CalculatorBrain()
+        let result: String = cal.eval(titleLabel.text!)
+        detailLabel.text! = result
+        typingFlag = true
+        
     }
     
 
