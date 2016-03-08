@@ -23,6 +23,7 @@ class ViewController: UIViewController {
     private var buttonList: [UIView] = [UIView]()
     private let ops: [String] = ["*", "+", "-", "/", "."]
     private let bracket: [String] = ["(", ")"]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = MaterialColor.white
@@ -52,7 +53,7 @@ class ViewController: UIViewController {
         self.view.addSubview(resultView)
         
         resultView.snp_makeConstraints { (make) -> Void in
-            make.top.equalTo(self.view).offset(30)
+            make.top.equalTo(self.view).offset(20)
             make.left.equalTo(self.view).offset(10)
             make.right.equalTo(self.view).offset(-10)
             
@@ -69,10 +70,11 @@ class ViewController: UIViewController {
             make.left.equalTo(resultView).offset(10)
             make.bottom.equalTo(resultView).offset(-10)
             make.right.equalTo(resultView).offset(-10)
+            make.height.equalTo(44)
         }
 
         buttonView.snp_makeConstraints { (make) -> Void in
-            make.top.equalTo(resultView.snp_bottom).offset(10)
+            make.top.equalTo(resultView.snp_bottom)
             make.left.equalTo(self.view).offset(10)
             make.bottom.equalTo(self.view).offset(-20)
             make.right.equalTo(self.view).offset(-10)
@@ -88,10 +90,10 @@ class ViewController: UIViewController {
             button.grid.offset.columns = index % 4 * 3
             button.grid.offset.rows = index / 4 * 3
             button.depth = .Depth2
-            button.backgroundColor = MaterialColor.grey.lighten1
+            button.backgroundColor = MaterialColor.blueGrey.darken2
             //button.titleLabel!.textColor = MaterialColor.lightBlue.base
             if ops.contains(buttonTitles[index]) || bracket.contains(buttonTitles[index]){
-                button.backgroundColor = MaterialColor.lightBlue.darken2
+                button.backgroundColor = MaterialColor.blue.darken2
             }
             button.addTarget(self,action:Selector("tapped:"),forControlEvents:.TouchUpInside)
             
@@ -103,7 +105,6 @@ class ViewController: UIViewController {
                 button.backgroundColor = MaterialColor.red.darken1
                 button.titleLabel!.font = RobotoFont.mediumWithSize(20)
                 button.removeTarget(self, action: Selector("tapped:"), forControlEvents: .TouchUpInside)
-
                 button.addTarget(self,action:Selector("clear:"),forControlEvents:.TouchUpInside)
             case 3:
                 button.backgroundColor = MaterialColor.red.darken1
@@ -125,7 +126,7 @@ class ViewController: UIViewController {
         buttonView.grid.axis.inherited = false
         buttonView.grid.views = buttonList
         buttonView.grid.axis.columns = 12
-        buttonView.grid.axis.rows = 16
+        buttonView.grid.axis.rows = 18
         buttonView.grid.contentInsetPreset = .Square3
     }
 
@@ -134,16 +135,14 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     func tapped(button:UIButton){
-        print(beforeOp)
-        
-        if ops.contains(beforeOp) && ops.contains(button.currentTitle!){
+        if ops.contains(beforeOp) && ops.contains(button.currentTitle!) || (button.currentTitle! == ")" && (countBracket() == false || beforeOp == "(")){
             opFlag = true
         }
         else{
             opFlag = false
         }
         if opFlag == false {
-            if(typingFlag) {
+            if typingFlag {
                 titleLabel.text! = "\(titleLabel.text!)\(button.currentTitle!)"
             }
             else{
@@ -180,9 +179,25 @@ class ViewController: UIViewController {
         typingFlag = true
         
     }
+    func countBracket() -> Bool {
+        var leftBracketCount = 0
+        var rightBracketCount = 0
+
+        for ch in titleLabel.text!.characters{
+            switch ch{
+                case "(":leftBracketCount++
+                case ")":rightBracketCount++
+            default:break
+            }
+        }
+        if leftBracketCount == 0 || leftBracketCount == rightBracketCount{
+            return false
+        }
+        else{
+            return true
+        }
+    }
     
-
-
 
 }
 
