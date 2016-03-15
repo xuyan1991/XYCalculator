@@ -172,11 +172,13 @@ class ViewController: UIViewController {
         if(titleLabel.text != ""){
             titleLabel.text?.removeAtIndex(titleLabel.text!.characters.indices.last!)
         }
-        beforeOp = String(titleLabel.text!.characters.last!)
-        let cal: CalculatorBrain = CalculatorBrain()
-        let result: String = cal.eval(titleLabel.text!)
-        detailLabel.text! = result
-        typingFlag = true
+        if(titleLabel.text!.characters.count > 1){
+            beforeOp = String(titleLabel.text!.characters.last!)
+            let cal: CalculatorBrain = CalculatorBrain()
+            let result: String = cal.eval(titleLabel.text!)
+            detailLabel.text! = result
+            typingFlag = true
+        }
         
     }
     func countBracket() -> Bool {

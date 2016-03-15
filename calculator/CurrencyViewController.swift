@@ -10,12 +10,15 @@
 
 import UIKit
 import Material
-
+import SwiftyJSON
+import Alamofire
 private struct Cell {
     var text: String
     var imageName: String
     var selected: Bool
+
 }
+
 
 class CurrencyViewController: UIViewController {
     /// A tableView used to display navigation items.
@@ -23,12 +26,11 @@ class CurrencyViewController: UIViewController {
     
     /// A list of all the navigation items.
     private var items: Array<Cell> = Array<Cell>()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         prepareView()
-        prepareCells()
-        prepareTableView()
+
+        self.reloadData()
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -47,16 +49,33 @@ class CurrencyViewController: UIViewController {
     /// General preparation statements.
     private func prepareView() {
         view.backgroundColor = MaterialColor.white
+        
     }
     
     /// Prepares the items that are displayed within the tableView.
     private func prepareCells() {
-        items.append(Cell(text: "计算器", imageName: "ic_inbox", selected: true))
-        items.append(Cell(text: "汇率计算", imageName: "ic_today", selected: false))
-        items.append(Cell(text: "Bookmarks", imageName: "ic_book", selected: false))
-        items.append(Cell(text: "Work", imageName: "ic_work", selected: false))
-        items.append(Cell(text: "Contacts", imageName: "ic_contacts", selected: false))
-        items.append(Cell(text: "Settings", imageName: "ic_settings", selected: false))
+        
+        
+//        for country in model.request(){
+//        }
+    }
+    private func reloadData() {
+        let request = Alamofire.request(.GET, "http://apis.baidu.com/apistore/currencyservice/type",headers:["apikey": "a7c0f1c570be9e0f9f09ef88213ce7b1"])
+            .responseJSON { _, _, result in
+                
+                print(result.value!["retData"]!)
+                
+                let country:[String] = result.value!["retData"]!! as! [String]
+                for name in country {
+                    self.items.append(Cell(text: name, imageName: "ic_inbox", selected: true))
+
+                }
+                self.prepareTableView()
+                //debugPrint(result)
+        }
+        
+        
+        
     }
     
     //Prepares profile view.
@@ -87,9 +106,10 @@ class CurrencyViewController: UIViewController {
         MaterialLayout.alignFromTop(view, child: nameLabel, top: 130)
         MaterialLayout.alignToParentHorizontally(view, child: nameLabel, left: 20, right: 20)
     }
-    
+
     /// Prepares the tableView.
     private func prepareTableView() {
+        
         tableView.registerClass(MaterialTableViewCell.self, forCellReuseIdentifier: "MaterialTableViewCell")
         tableView.backgroundColor = MaterialColor.clear
         tableView.dataSource = self
@@ -122,7 +142,7 @@ extension CurrencyViewController: UITableViewDataSource {
         cell.imageView!.tintColor = MaterialColor.grey.lighten2
         
         cell.textLabel!.textColor = item.selected ? MaterialColor.blue.lighten1 : MaterialColor.grey.lighten1
-        cell.detailTextLabel!.text = ";;"
+        //cell.detailTextLabel!.text = ";;"
 
         return cell
     }
